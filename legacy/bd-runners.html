@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Running Challenge — Bangladesh's Running Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --bg-card:#FFFFFF;
+    --bg-soft:#FAFAFA;
+    --ink:#15100F;
+    --ink-soft:#77706E;
+    --red:#ED1C24;
+    --red-deep:#B8121A;
+    --red-soft:#FDECEC;
+    --black:#15100F;
+    --line:rgba(21,16,15,0.10);
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121010;
+      --bg-card:#1A1616;
+      --bg-soft:#1F1A1A;
+      --ink:#F5F0EF;
+      --ink-soft:#A99F9D;
+      --red:#FF3B42;
+      --red-deep:#FF6B70;
+      --red-soft:#2B1213;
+      --black:#F5F0EF;
+      --line:rgba(245,240,239,0.14);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#121010;
+    --bg-card:#1A1616;
+    --bg-soft:#1F1A1A;
+    --ink:#F5F0EF;
+    --ink-soft:#A99F9D;
+    --red:#FF3B42;
+    --red-deep:#FF6B70;
+    --red-soft:#2B1213;
+    --black:#F5F0EF;
+    --line:rgba(245,240,239,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope','Noto Sans Bengali',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Manrope',sans-serif;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    margin:0;
+  }
+  .bn{ font-family:'Noto Sans Bengali',sans-serif; }
+  .wrap{ max-width:1040px; margin:0 auto; padding:0 24px; }
+  a{color:inherit;}
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .topbar{ background:rgba(18,16,16,0.85); }
+  }
+  :root[data-theme="dark"] .topbar{ background:rgba(18,16,16,0.85); }
+  .topbar-row{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px; padding:16px 0;
+  }
+  .brand-mark{
+    font-family:'Manrope',sans-serif;
+    font-size:15px; font-weight:800;
+    display:flex; align-items:center; gap:8px;
+    flex:none;
+  }
+  .brand-mark .dot{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--red); flex:none;
+  }
+  .nav-links{ display:flex; gap:30px; overflow-x:auto; flex:1; justify-content:center; }
+  .navbtn{
+    font-family:'Manrope',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    border:none;
+    border-bottom:2px solid transparent;
+    background:transparent;
+    color:var(--ink-soft);
+    padding:6px 0;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .navbtn.active{ color:var(--red); font-weight:700; border-bottom-color:var(--red); }
+  .nav-icons{ flex:none; }
+  .profile-chip{
+    font-size:12.5px; font-weight:700;
+    background:var(--bg-soft); color:var(--ink);
+    padding:8px 14px; border-radius:999px;
+    border:1px solid var(--line);
+  }
+
+  /* ---------- Hero: minimal, centered, white ---------- */
+  .hero{
+    position:relative; overflow:hidden;
+    background:var(--bg);
+  }
+  .hero-figure{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+  .hero-inner{
+    position:relative; z-index:1;
+    text-align:center;
+    max-width:680px;
+    padding:76px 24px 0;
+  }
+  .hero-mark{
+    color:var(--red); font-size:28px; line-height:1; margin-bottom:22px;
+  }
+  .hero-title{
+    font-size:clamp(38px,6.5vw,64px);
+    line-height:1.02;
+    color:var(--ink);
+  }
+  .hero-sub{
+    margin:20px auto 0; max-width:46ch;
+    font-size:16px; font-weight:500;
+    color:var(--ink-soft);
+  }
+  .hero-ctas{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:30px; }
+  .hero-btn{
+    font-family:'Manrope',sans-serif; font-weight:700; font-size:14px;
+    border:1.5px solid transparent;
+    padding:14px 26px; border-radius:999px; cursor:pointer;
+  }
+  .hero-btn.primary{ background:var(--red); color:#fff; }
+  .hero-btn.ghost{ background:transparent; color:var(--ink); border-color:var(--line); }
+  .hero-stats{
+    display:grid; grid-template-columns:repeat(4,1fr);
+    margin:56px 0 0; border-top:1px solid var(--line);
+  }
+  .stat-card{
+    text-align:center; padding:20px 8px;
+    border-right:1px solid var(--line);
+  }
+  .stat-card:last-child{ border-right:none; }
+  .stat-card .n{ font-family:'Manrope',sans-serif; font-weight:800; font-size:24px; color:var(--ink); }
+  .stat-card .l{ font-size:11.5px; color:var(--ink-soft); font-weight:600; margin-top:3px; }
+  @media (max-width:640px){ .hero-stats{ grid-template-columns:repeat(2,1fr); } .stat-card:nth-child(2){border-right:none;} }
+
+  main{padding:56px 0 90px;}
+  .section-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    gap:12px; margin-bottom:22px; flex-wrap:wrap;
+  }
+  .section-head h2{font-size:22px;}
+  .section-head .sub{color:var(--ink-soft); font-size:13.5px; font-weight:500;}
+
+  /* ---------- Challenge cards ---------- */
+  .challenge-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:680px){ .challenge-grid{grid-template-columns:1fr;} }
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px;
+  }
+  .chal-card .top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .badge-emoji{
+    font-size:19px; line-height:1;
+    width:42px; height:42px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--red-soft);
+    flex:none;
+  }
+  .chal-card h3{
+    font-size:16.5px; font-weight:800; letter-spacing:-0.01em;
+  }
+  .chal-card .desc{
+    color:var(--ink-soft); font-size:13px; margin-top:6px; min-height:36px; font-weight:500;
+  }
+  .ring-row{ display:flex; align-items:center; gap:14px; margin-top:16px; }
+  .ring-wrap{ position:relative; flex:none; width:54px; height:54px; }
+  .ring-wrap .ring-pct{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Manrope',sans-serif; font-weight:800; font-size:12px; color:var(--ink);
+  }
+  .ring-info{ flex:1; }
+  .ring-info .val{ font-weight:700; font-size:13.5px; }
+  .ring-info .status{ font-size:11.5px; color:var(--ink-soft); font-weight:600; margin-top:1px; }
+  .chal-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:14px; padding-top:14px; border-top:1px solid var(--line);
+    font-size:12px; color:var(--ink-soft); font-weight:600;
+  }
+  .chal-cta{
+    margin-top:16px; width:100%; border:none;
+    background:var(--red); color:#fff;
+    font-family:'Manrope',sans-serif;
+    font-weight:700; font-size:13.5px;
+    padding:13px; border-radius:999px; cursor:pointer;
+  }
+  .chal-cta.completed{ background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); }
+
+  /* ---------- Form ---------- */
+  .form-card{max-width:520px;}
+  label{ display:block; font-size:12.5px; font-weight:700; margin:18px 0 7px; color:var(--ink-soft); }
+  label:first-of-type{margin-top:0;}
+  input,select,textarea{
+    width:100%; font-family:'Manrope',sans-serif; font-size:15px;
+    padding:12px 14px; border-radius:12px;
+    border:1px solid var(--line); background:var(--bg-soft); color:var(--ink);
+  }
+  input:focus,select:focus,textarea:focus{ outline:none; border-color:var(--red); }
+  textarea{resize:vertical; min-height:64px;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .submit-btn{
+    margin-top:22px; width:100%; border:none;
+    background:var(--red); color:#fff;
+    font-family:'Manrope',sans-serif;
+    font-weight:700; font-size:14.5px;
+    padding:15px; border-radius:999px; cursor:pointer;
+  }
+  .submit-btn:disabled{opacity:0.5; cursor:default;}
+  .hint{font-size:12px; color:var(--ink-soft); margin-top:8px;}
+  .toast{ margin-top:16px; border-radius:12px; padding:13px 15px; font-size:13.5px; font-weight:600; display:none; }
+  .toast.show{display:block;}
+  .toast.ok{background:var(--red-soft); color:var(--red-deep);}
+  .toast.earned{background:var(--ink); color:#fff;}
+
+  /* ---------- Leaderboard / feed ---------- */
+  .lb-select{ display:flex; gap:8px; overflow-x:auto; margin-bottom:18px; }
+  .lb-chip{
+    border:1px solid var(--line); background:var(--bg-card);
+    padding:8px 16px; border-radius:999px; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap; color:var(--ink-soft);
+  }
+  .lb-chip.active{background:var(--red); color:#fff; border-color:var(--red);}
+  .lb-row{ display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .lb-row:last-child{border-bottom:none;}
+  .lb-rank{
+    width:24px; text-align:center;
+    font-family:'Manrope',sans-serif; font-weight:800; font-size:12.5px; color:var(--ink-soft);
+  }
+  .lb-name{font-weight:700; flex:1;}
+  .lb-val{font-weight:800; font-family:'Manrope',sans-serif; color:var(--red);}
+  .feed-item{ padding:13px 0; border-bottom:1px solid var(--line); font-size:14px; }
+  .feed-item:last-child{border-bottom:none;}
+  .feed-top{display:flex; justify-content:space-between; gap:8px;}
+  .feed-name{font-weight:700;}
+  .feed-meta{color:var(--ink-soft); font-size:12px; margin-top:2px; font-weight:500;}
+  .feed-note{margin-top:5px; color:var(--ink-soft); font-style:italic; font-size:13px;}
+  .pill{
+    display:inline-block; font-size:11px; font-weight:700;
+    padding:3px 10px; border-radius:999px;
+    background:var(--bg-soft); color:var(--ink-soft);
+    border:1px solid var(--line);
+  }
+  .empty{ text-align:center; padding:40px 16px; color:var(--ink-soft); font-size:14px; }
+
+  /* ---------- Rewards tab ---------- */
+  .points-hero{
+    text-align:center; padding:34px;
+    background:var(--ink); color:#fff; border:none; border-radius:20px;
+  }
+  .points-n{ font-family:'Manrope',sans-serif; font-weight:800; font-size:46px; }
+  .points-l{font-size:12.5px; opacity:0.8; margin-top:4px; font-weight:600;}
+  .reward-tile{text-align:left;}
+
+  /* ---------- Badges tab ---------- */
+  .badge-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; }
+  .badge-tile{
+    text-align:center; padding:22px 10px;
+    border-radius:var(--radius); border:1px solid var(--line);
+  }
+  .badge-tile.locked{opacity:0.4;}
+  .badge-tile .em{
+    font-size:24px; width:56px; height:56px; margin:0 auto;
+    border-radius:50%; background:var(--red-soft);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .badge-tile.locked .em{ background:var(--bg-soft); }
+  .badge-tile .nm{ font-weight:700; margin-top:10px; font-size:13px; }
+  .badge-tile .st{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; font-weight:600; }
+
+  /* ---------- Onboarding modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(21,16,15,0.55);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px; z-index:50;
+  }
+  .modal{ background:var(--bg-card); border-radius:20px; padding:30px 26px; max-width:380px; width:100%; }
+  .modal h2{font-size:21px; margin-bottom:8px;}
+  .modal p{color:var(--ink-soft); font-size:14px; margin:0 0 20px; font-weight:500;}
+
+  footer{ border-top:1px solid var(--line); padding:28px 0 70px; color:var(--ink-soft); font-size:12px; }
+  .banner{
+    background:var(--red-soft); border:none; color:var(--red-deep);
+    font-size:13px; font-weight:600; padding:11px 15px; border-radius:10px; margin-bottom:22px;
+  }
+</style>
+</head>
+<body>
+
+<div id="onboard" class="modal-backdrop" style="display:none;">
+  <div class="modal">
+    <h2>Join the run</h2>
+    <p class="bn">দৌড়ে যোগ দিন — tell us your name to start earning points and racing the clock.</p>
+    <label for="ob-name">Your name</label>
+    <input id="ob-name" placeholder="e.g. Tanvir Ahmed" maxlength="40">
+    <label for="ob-city">City / area</label>
+    <input id="ob-city" placeholder="e.g. Dhaka, Chattogram, Sylhet..." maxlength="40">
+    <button class="submit-btn" id="ob-submit">Start running</button>
+    <p class="hint">No password, no email — just a name so your runs and badges follow you here.</p>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="wrap topbar-row">
+    <div class="brand-mark"><span class="dot"></span>Running Challenge</div>
+    <nav class="nav-links" id="nav-links">
+      <button class="navbtn active" data-tab="challenges">Challenges</button>
+      <button class="navbtn" data-tab="log">Log a Run</button>
+      <button class="navbtn" data-tab="board">Leaderboard</button>
+      <button class="navbtn" data-tab="rewards">Rewards</button>
+      <button class="navbtn" data-tab="badges">Badges</button>
+    </nav>
+    <div class="nav-icons">
+      <div class="profile-chip" id="profile-chip">— </div>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <svg class="hero-figure" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <circle cx="700" cy="90" r="260" fill="none" stroke="var(--red)" stroke-opacity="0.08" stroke-width="1"/>
+    <circle cx="700" cy="90" r="180" fill="none" stroke="var(--red)" stroke-opacity="0.10" stroke-width="1"/>
+  </svg>
+  <div class="wrap hero-inner">
+    <div class="hero-mark">●</div>
+    <h1 class="hero-title">Run. Earn.<br>Repeat.</h1>
+    <p class="hero-sub">Join nationwide challenges, log every kilometre from any tracker, and turn points into cashback, ice cream, and flight tickets. Fastest finisher on every challenge takes a bonus.</p>
+    <div class="hero-ctas">
+      <button class="hero-btn primary" id="hero-cta" data-goto="challenges">Join a Challenge</button>
+      <button class="hero-btn ghost" data-goto="rewards">See Rewards</button>
+    </div>
+    <div class="hero-stats" id="hero-stats">
+      <div class="stat-card"><div class="n" id="stat-runners">—</div><div class="l">Runners</div></div>
+      <div class="stat-card"><div class="n" id="stat-km">—</div><div class="l">Km logged</div></div>
+      <div class="stat-card"><div class="n" id="stat-runs">—</div><div class="l">Runs this week</div></div>
+      <div class="stat-card"><div class="n" id="stat-challenges">4</div><div class="l">Challenges</div></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <div id="db-banner" class="banner" style="display:none;">
+    Live sync isn't available in this view, so this is a read-only demo of the flow — data won't be saved.
+  </div>
+
+  <!-- CHALLENGES TAB -->
+  <section id="tab-challenges">
+    <div class="section-head">
+      <h2>Live challenges</h2>
+      <div class="sub">Any tracking app works — Strava, Garmin, Coros, Apple Health, or none at all.</div>
+    </div>
+    <div class="challenge-grid" id="challenge-grid"></div>
+  </section>
+
+  <!-- LOG A RUN TAB -->
+  <section id="tab-log" style="display:none;">
+    <div class="section-head">
+      <h2>Log a run</h2>
+      <div class="sub">Enter it however you tracked it — we don't require any specific app.</div>
+    </div>
+    <div class="card form-card">
+      <label for="lf-distance">Distance (km)</label>
+      <input id="lf-distance" type="number" min="0.1" step="0.1" placeholder="e.g. 5.2">
+
+      <div class="row2">
+        <div>
+          <label for="lf-date">Date</label>
+          <input id="lf-date" type="date">
+        </div>
+        <div>
+          <label for="lf-source">Tracked with</label>
+          <select id="lf-source">
+            <option>Strava</option>
+            <option>Garmin</option>
+            <option>Coros / Suunto</option>
+            <option>Apple Health</option>
+            <option>Nike Run Club / other app</option>
+            <option selected>Manual — no tracker</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="lf-challenge">Count toward challenge</label>
+      <select id="lf-challenge">
+        <option value="">Free run — no challenge</option>
+      </select>
+
+      <label for="lf-note">Note (optional)</label>
+      <textarea id="lf-note" maxlength="140" placeholder="How did it feel? Where did you run?"></textarea>
+
+      <button class="submit-btn" id="lf-submit">Log this run</button>
+      <div class="toast" id="lf-toast"></div>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD / FEED TAB -->
+  <section id="tab-board" style="display:none;">
+    <div class="section-head">
+      <h2>Leaderboard</h2>
+      <div class="sub">Ranked by challenge progress.</div>
+    </div>
+    <div class="lb-select" id="lb-select"></div>
+    <div class="card" id="lb-list" style="margin-bottom:28px;"></div>
+
+    <div class="section-head">
+      <h2>Community feed</h2>
+      <div class="sub">Recent runs from across Bangladesh.</div>
+    </div>
+    <div class="card" id="feed-list"></div>
+  </section>
+
+  <!-- REWARDS TAB -->
+  <section id="tab-rewards" style="display:none;">
+    <div class="section-head">
+      <h2>Rewards</h2>
+      <div class="sub">Earn points by completing challenges, then unlock real rewards.</div>
+    </div>
+    <div class="card points-hero">
+      <div class="points-n" id="rw-balance">0</div>
+      <div class="points-l">Your points balance</div>
+    </div>
+    <div class="section-head" style="margin-top:26px;">
+      <h2 style="font-size:19px;">Unlock a reward</h2>
+    </div>
+    <div class="challenge-grid" id="rw-grid"></div>
+    <div class="section-head" style="margin-top:30px;">
+      <h2 style="font-size:19px;">Your redemptions</h2>
+    </div>
+    <div class="card" id="rw-history"></div>
+  </section>
+
+  <!-- BADGES TAB -->
+  <section id="tab-badges" style="display:none;">
+    <div class="section-head">
+      <h2>My badges</h2>
+      <div class="sub">Earn one by hitting a challenge's goal.</div>
+    </div>
+    <div class="badge-grid" id="badge-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Running Challenge is an early MVP built for Bangladesh's running community — points and badges today, brand-sponsored rewards and marathon training series coming soon. Runs are self-reported; log honestly and run safe, well-lit routes.
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var CHALLENGES = [
+    { id:"hatirjheel-50", title:"Hatirjheel 50", emoji:"🟢", metric:"distance_km", goal:50,
+      desc:"Run 50 km anywhere in Bangladesh this month. Every kilometre counts.", window:"This month",
+      points:250, bonus:150 },
+    { id:"dawn-streak-10", title:"Dawn Streak", emoji:"🌅", metric:"distinct_days", goal:10,
+      desc:"Get out for a run on 10 different days this month — consistency over speed.", window:"This month",
+      points:150, bonus:100 },
+    { id:"road-to-dhaka25k", title:"Road to Dhaka 25K", emoji:"🏅", metric:"distance_km", goal:100,
+      desc:"Build toward Dhaka's biggest road race — log 100 km of training.", window:"Next 8 weeks",
+      points:500, bonus:250 },
+    { id:"first-5k", title:"First 5K", emoji:"🎽", metric:"single_run_km", goal:5,
+      desc:"New to running? Complete one 5 km run, at any pace, to earn your first badge.", window:"Anytime",
+      points:50, bonus:50 }
+  ];
+
+  var REWARDS = [
+    { id:"icecream", emoji:"🍦", name:"Ice Cream Treat", cost:150,
+      desc:"A voucher for a scoop or two at a partner ice-cream shop." },
+    { id:"cashback200", emoji:"💵", name:"Cashback ৳200", cost:400,
+      desc:"Sent to your bKash or Nagad wallet." },
+    { id:"cashback500", emoji:"💵", name:"Cashback ৳500", cost:900,
+      desc:"Sent to your bKash or Nagad wallet." },
+    { id:"flight", emoji:"✈️", name:"Domestic Flight Ticket", cost:5000,
+      desc:"A one-way domestic ticket with a partner airline — the big stretch reward." }
+  ];
+
+  var el = function(id){ return document.getElementById(id); };
+  var todayISO = function(){ return new Date().toISOString().slice(0,10); };
+
+  var runs = [];         // live array of run docs {id, runnerId, runnerName, distanceKm, dateISO, source, challengeId, note, createdAt}
+  var completions = [];  // {id, challengeId, runnerId, runnerName, points, champion, completedAt}
+  var champions = {};    // challengeId -> {runnerId, runnerName, completedAt}
+  var redemptions = [];  // {id, runnerId, runnerName, rewardId, rewardName, pointsCost, redeemedAt, status}
+  var db = null;
+  var profile = null;   // {id, name, city}
+  var activeChallengeTab = CHALLENGES[0].id;
+
+  // ---------- profile (localStorage, per-viewer convenience) ----------
+  function loadProfile(){
+    try{
+      var raw = localStorage.getItem("daurao_profile");
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function saveProfile(p){
+    try{ localStorage.setItem("daurao_profile", JSON.stringify(p)); }catch(e){}
+  }
+  function genId(){
+    return "r" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  // ---------- progress math ----------
+  function progressFor(challenge, runnerRuns){
+    if(challenge.metric === "distance_km"){
+      var total = 0;
+      runnerRuns.forEach(function(r){ total += r.distanceKm || 0; });
+      return { value: round1(total), goal: challenge.goal, unit:"km",
+        pct: Math.min(100, total/challenge.goal*100), done: total >= challenge.goal };
+    }
+    if(challenge.metric === "distinct_days"){
+      var days = new Set(runnerRuns.map(function(r){ return r.dateISO; }));
+      return { value: days.size, goal: challenge.goal, unit:"days",
+        pct: Math.min(100, days.size/challenge.goal*100), done: days.size >= challenge.goal };
+    }
+    if(challenge.metric === "single_run_km"){
+      var max = 0;
+      runnerRuns.forEach(function(r){ if((r.distanceKm||0) > max) max = r.distanceKm; });
+      return { value: round1(max), goal: challenge.goal, unit:"km",
+        pct: Math.min(100, max/challenge.goal*100), done: max >= challenge.goal };
+    }
+    return { value:0, goal:challenge.goal, unit:"", pct:0, done:false };
+  }
+  function round1(n){ return Math.round(n*10)/10; }
+
+  function ringSVG(pct, done){
+    var size = 64, stroke = 7, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+    var offset = c * (1 - Math.min(100, Math.max(0, pct)) / 100);
+    var color = done ? "var(--sun)" : "var(--red)";
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">' +
+      '<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="'+stroke+'"/>' +
+      '<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="'+stroke+'" ' +
+        'stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+offset+'" ' +
+        'transform="rotate(-90 '+size/2+' '+size/2+')"/>' +
+    '</svg>';
+  }
+
+  function runsFor(challengeId, runnerId){
+    return runs.filter(function(r){
+      return r.challengeId === challengeId && (!runnerId || r.runnerId === runnerId);
+    });
+  }
+
+  // ---------- points ----------
+  function myEarnedPoints(runnerId){
+    var total = 0;
+    completions.forEach(function(c){ if(c.runnerId === runnerId) total += c.points || 0; });
+    return total;
+  }
+  function mySpentPoints(runnerId){
+    var total = 0;
+    redemptions.forEach(function(r){ if(r.runnerId === runnerId) total += r.pointsCost || 0; });
+    return total;
+  }
+  function myBalance(runnerId){
+    return myEarnedPoints(runnerId) - mySpentPoints(runnerId);
+  }
+  function hasCompletion(challengeId, runnerId){
+    return completions.some(function(c){ return c.challengeId === challengeId && c.runnerId === runnerId; });
+  }
+
+  // ---------- "fastest finisher" claim: cooperative lease, single-writer slot ----------
+  function tryClaimChampion(challengeId, runnerId, runnerName){
+    if(!db) return Promise.resolve(false);
+    var ref = db.doc("champions/" + challengeId);
+    return ref.acquire({ holder: runnerId, ttlMs: 8000 }).then(function(lease){
+      if(!lease.acquired) return false;
+      return ref.get().then(function(snap){
+        var data = snap.exists ? snap.data() : null;
+        if(data && data.runnerId){ return false; } // someone already claimed it
+        return ref.set({ challengeId: challengeId, runnerId: runnerId, runnerName: runnerName, completedAt: Date.now() })
+          .then(function(){ return true; });
+      });
+    }).catch(function(){ return false; });
+  }
+
+  // Award points (and, if applicable, the fastest-finisher bonus) the first time
+  // a runner's progress on a challenge crosses its goal. Returns a promise.
+  function awardIfNewlyCompleted(challenge, runnerId, runnerName){
+    if(!db) return Promise.resolve(null);
+    var done = progressFor(challenge, runsFor(challenge.id, runnerId)).done;
+    if(!done) return Promise.resolve(null);
+    var completionId = challenge.id + "__" + runnerId;
+    var ref = db.collection("completions").doc(completionId);
+    return ref.get().then(function(snap){
+      if(snap.exists) return null; // already awarded
+      return tryClaimChampion(challenge.id, runnerId, runnerName).then(function(champion){
+        var points = challenge.points + (champion ? challenge.bonus : 0);
+        return ref.set({
+          challengeId: challenge.id, runnerId: runnerId, runnerName: runnerName,
+          points: points, champion: champion, completedAt: Date.now()
+        }).then(function(){ return { points: points, champion: champion, challenge: challenge }; });
+      });
+    });
+  }
+
+  // ---------- rendering: challenges ----------
+  function renderChallenges(){
+    var grid = el("challenge-grid");
+    grid.innerHTML = "";
+    CHALLENGES.forEach(function(c){
+      var mine = profile ? runsFor(c.id, profile.id) : [];
+      var p = progressFor(c, mine);
+      var participants = new Set(runsFor(c.id).map(function(r){ return r.runnerId; })).size;
+
+      var champ = champions[c.id];
+      var champLine = champ
+        ? '<div class="chal-meta" style="margin-top:6px;"><span>🏆 Fastest: '+esc(champ.runnerName)+'</span></div>'
+        : '<div class="chal-meta" style="margin-top:6px;"><span>🏆 +'+c.bonus+' bonus pts for the first finisher</span></div>';
+
+      var card = document.createElement("div");
+      card.className = "card chal-card";
+      card.innerHTML =
+        '<div class="top">' +
+          '<div><h3>'+esc(c.title)+'</h3><div class="desc">'+esc(c.desc)+'</div></div>' +
+          '<div class="badge-emoji">'+c.emoji+'</div>' +
+        '</div>' +
+        '<div class="ring-row">' +
+          '<div class="ring-wrap">' + ringSVG(p.pct, p.done) + '<div class="ring-pct">'+(p.done ? "✓" : Math.round(p.pct)+"%")+'</div></div>' +
+          '<div class="ring-info"><div class="val">'+p.value+' / '+p.goal+' '+p.unit+'</div><div class="status">'+(p.done ? "Completed" : "In progress")+'</div></div>' +
+        '</div>' +
+        '<div class="chal-meta"><span>'+c.window+'</span><span>'+participants+' runner'+(participants===1?'':'s')+'</span></div>' +
+        '<div class="chal-meta"><span>⭐ '+c.points+' pts on completion</span><span>'+(p.done ? "" : "")+'</span></div>' +
+        champLine +
+        '<button class="chal-cta'+(p.done?' completed':'')+'" data-goto-log="'+c.id+'">'+(p.done ? '🏅 Badge earned — log another run' : 'Log a run for this')+'</button>';
+      grid.appendChild(card);
+    });
+    grid.querySelectorAll("[data-goto-log]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        el("lf-challenge").value = btn.getAttribute("data-goto-log");
+        setTab("log");
+      });
+    });
+  }
+
+  // ---------- rendering: log form challenge options ----------
+  function renderChallengeOptions(){
+    var sel = el("lf-challenge");
+    var current = sel.value;
+    sel.innerHTML = '<option value="">Free run — no challenge</option>';
+    CHALLENGES.forEach(function(c){
+      var o = document.createElement("option");
+      o.value = c.id; o.textContent = c.title;
+      sel.appendChild(o);
+    });
+    if(current) sel.value = current;
+  }
+
+  // ---------- rendering: leaderboard + feed ----------
+  function renderBoardChips(){
+    var wrap = el("lb-select");
+    wrap.innerHTML = "";
+    CHALLENGES.forEach(function(c){
+      var chip = document.createElement("button");
+      chip.className = "lb-chip" + (c.id === activeChallengeTab ? " active" : "");
+      chip.textContent = c.emoji + " " + c.title;
+      chip.addEventListener("click", function(){
+        activeChallengeTab = c.id;
+        renderBoardChips();
+        renderLeaderboard();
+      });
+      wrap.appendChild(chip);
+    });
+  }
+
+  function renderLeaderboard(){
+    var challenge = CHALLENGES.find(function(c){ return c.id === activeChallengeTab; });
+    var byRunner = {};
+    runsFor(challenge.id).forEach(function(r){
+      byRunner[r.runnerId] = byRunner[r.runnerId] || { name:r.runnerName, runs:[] };
+      byRunner[r.runnerId].runs.push(r);
+    });
+    var rows = Object.keys(byRunner).map(function(id){
+      var p = progressFor(challenge, byRunner[id].runs);
+      return { id:id, name:byRunner[id].name, value:p.value, unit:p.unit, done:p.done };
+    });
+    rows.sort(function(a,b){ return b.value - a.value; });
+
+    var list = el("lb-list");
+    if(rows.length === 0){
+      list.innerHTML = '<div class="empty">No runs logged for this challenge yet — be the first.</div>';
+      return;
+    }
+    list.innerHTML = "";
+    rows.slice(0,15).forEach(function(r, i){
+      var row = document.createElement("div");
+      row.className = "lb-row";
+      row.innerHTML =
+        '<div class="lb-rank">'+(i+1)+'</div>' +
+        '<div class="lb-name">'+esc(r.name)+(r.done ? ' 🏅' : '')+'</div>' +
+        '<div class="lb-val">'+r.value+' <span style="font-family:inherit;font-weight:500;font-size:12px;color:var(--ink-soft);">'+r.unit+'</span></div>';
+      list.appendChild(row);
+    });
+  }
+
+  function timeAgo(ts){
+    var s = Math.floor((Date.now()-ts)/1000);
+    if(s < 60) return "just now";
+    var m = Math.floor(s/60); if(m<60) return m+"m ago";
+    var h = Math.floor(m/60); if(h<24) return h+"h ago";
+    var d = Math.floor(h/24); return d+"d ago";
+  }
+
+  function renderFeed(){
+    var list = el("feed-list");
+    var recent = runs.slice().sort(function(a,b){ return b.createdAt - a.createdAt; }).slice(0,20);
+    if(recent.length === 0){
+      list.innerHTML = '<div class="empty">No runs yet. Log yours and be the first on the feed.</div>';
+      return;
+    }
+    list.innerHTML = "";
+    recent.forEach(function(r){
+      var c = CHALLENGES.find(function(x){ return x.id === r.challengeId; });
+      var item = document.createElement("div");
+      item.className = "feed-item";
+      item.innerHTML =
+        '<div class="feed-top">' +
+          '<span class="feed-name">'+esc(r.runnerName)+'</span>' +
+          '<span class="lb-val" style="font-size:14px;">'+r.distanceKm+' km</span>' +
+        '</div>' +
+        '<div class="feed-meta">' +
+          (c ? '<span class="pill">'+c.emoji+' '+esc(c.title)+'</span> ' : '<span class="pill">Free run</span> ') +
+          esc(r.source) + ' · ' + timeAgo(r.createdAt) +
+        '</div>' +
+        (r.note ? '<div class="feed-note">"'+esc(r.note)+'"</div>' : '');
+      list.appendChild(item);
+    });
+  }
+
+  // ---------- rendering: badges ----------
+  function renderBadges(){
+    var grid = el("badge-grid");
+    grid.innerHTML = "";
+    CHALLENGES.forEach(function(c){
+      var mine = profile ? runsFor(c.id, profile.id) : [];
+      var p = progressFor(c, mine);
+      var mine2 = profile ? completions.find(function(x){ return x.challengeId===c.id && x.runnerId===profile.id; }) : null;
+      var tile = document.createElement("div");
+      tile.className = "badge-tile" + (p.done ? "" : " locked");
+      tile.innerHTML =
+        '<div class="em">'+c.emoji+'</div>' +
+        '<div class="nm">'+esc(c.title)+'</div>' +
+        '<div class="st">'+(p.done ? ("Earned · "+(mine2?mine2.points:c.points)+" pts"+(mine2&&mine2.champion?" 🏆":"")) : p.value+" / "+p.goal+" "+p.unit)+'</div>';
+      grid.appendChild(tile);
+    });
+  }
+
+  // ---------- rendering: rewards ----------
+  function renderRewards(){
+    var balEl = el("rw-balance");
+    if(!balEl) return;
+    var balance = profile ? myBalance(profile.id) : 0;
+    balEl.textContent = balance;
+
+    var grid = el("rw-grid");
+    grid.innerHTML = "";
+    REWARDS.forEach(function(r){
+      var can = profile && balance >= r.cost;
+      var tile = document.createElement("div");
+      tile.className = "card reward-tile";
+      tile.innerHTML =
+        '<div class="badge-emoji">'+r.emoji+'</div>' +
+        '<h3 style="font-size:16.5px;margin-top:6px;">'+esc(r.name)+'</h3>' +
+        '<div class="desc" style="font-size:13px;color:var(--ink-soft);min-height:34px;">'+esc(r.desc)+'</div>' +
+        '<div class="chal-meta" style="margin-top:10px;"><span>⭐ '+r.cost+' pts</span></div>' +
+        '<button class="chal-cta" data-redeem="'+r.id+'" '+(can?'':'disabled style="opacity:.5;cursor:default;"')+'>'+(can ? "Redeem" : "Not enough points")+'</button>';
+      grid.appendChild(tile);
+    });
+    grid.querySelectorAll("[data-redeem]").forEach(function(btn){
+      btn.addEventListener("click", function(){ redeemReward(btn.getAttribute("data-redeem")); });
+    });
+
+    var histEl = el("rw-history");
+    var mine = profile ? redemptions.filter(function(r){ return r.runnerId === profile.id; }) : [];
+    mine.sort(function(a,b){ return b.redeemedAt - a.redeemedAt; });
+    if(mine.length === 0){
+      histEl.innerHTML = '<div class="empty">No redemptions yet — earn points by finishing a challenge.</div>';
+    }else{
+      histEl.innerHTML = "";
+      mine.forEach(function(r){
+        var row = document.createElement("div");
+        row.className = "lb-row";
+        row.innerHTML =
+          '<div class="lb-name">'+esc(r.rewardName)+'</div>' +
+          '<div class="feed-meta" style="margin-right:10px;">'+timeAgo(r.redeemedAt)+'</div>' +
+          '<span class="pill">'+esc(r.status)+'</span>';
+        histEl.appendChild(row);
+      });
+    }
+  }
+
+  function redeemReward(rewardId){
+    if(!profile){ showOnboard(); return; }
+    var reward = REWARDS.find(function(r){ return r.id === rewardId; });
+    if(!reward) return;
+    if(myBalance(profile.id) < reward.cost) return;
+    var doc = {
+      runnerId: profile.id, runnerName: profile.name,
+      rewardId: reward.id, rewardName: reward.name, pointsCost: reward.cost,
+      redeemedAt: Date.now(), status: "Requested"
+    };
+    if(db){
+      db.collection("redemptions").add(doc).then(function(){ renderAll(); });
+    }else{
+      doc.id = genId();
+      redemptions.push(doc);
+      renderAll();
+    }
+  }
+
+  // ---------- rendering: hero stats ----------
+  function renderStats(){
+    var runnerIds = new Set(runs.map(function(r){ return r.runnerId; }));
+    var totalKm = 0;
+    runs.forEach(function(r){ totalKm += r.distanceKm || 0; });
+    var weekAgo = Date.now() - 7*24*60*60*1000;
+    var thisWeek = runs.filter(function(r){ return r.createdAt >= weekAgo; }).length;
+    el("stat-runners").textContent = runnerIds.size;
+    el("stat-km").textContent = Math.round(totalKm);
+    el("stat-runs").textContent = thisWeek;
+  }
+
+  function renderAll(){
+    renderChallenges();
+    renderChallengeOptions();
+    renderBoardChips();
+    renderLeaderboard();
+    renderFeed();
+    renderBadges();
+    renderRewards();
+    renderStats();
+    renderProfileChip();
+  }
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  // ---------- tabs ----------
+  function setTab(name){
+    ["challenges","log","board","rewards","badges"].forEach(function(t){
+      el("tab-"+t).style.display = (t===name) ? "" : "none";
+    });
+    document.querySelectorAll(".navbtn").forEach(function(b){
+      b.classList.toggle("active", b.getAttribute("data-tab")===name);
+    });
+    if(name === "log"){
+      var dateInput = el("lf-date");
+      if(!dateInput.value) dateInput.value = todayISO();
+      dateInput.max = todayISO();
+    }
+  }
+  document.querySelectorAll(".navbtn").forEach(function(b){
+    b.addEventListener("click", function(){ setTab(b.getAttribute("data-tab")); });
+  });
+  document.querySelectorAll("[data-goto]").forEach(function(el2){
+    el2.addEventListener("click", function(e){
+      e.preventDefault();
+      setTab(el2.getAttribute("data-goto"));
+      var nav = document.querySelector(".topbar");
+      if(nav) window.scrollTo({ top: nav.offsetTop, behavior: "smooth" });
+    });
+  });
+
+  // ---------- profile chip ----------
+  function renderProfileChip(){
+    if(!profile){ el("profile-chip").textContent = "Not signed in"; return; }
+    el("profile-chip").textContent = "👋 " + profile.name + " · ⭐ " + myBalance(profile.id) + " pts";
+  }
+
+  // ---------- onboarding ----------
+  function showOnboard(){
+    el("onboard").style.display = "flex";
+  }
+  el("ob-submit").addEventListener("click", function(){
+    var name = el("ob-name").value.trim();
+    var city = el("ob-city").value.trim();
+    if(!name){ el("ob-name").focus(); return; }
+    profile = { id: genId(), name: name, city: city };
+    saveProfile(profile);
+    el("onboard").style.display = "none";
+    renderProfileChip();
+    if(db){
+      db.collection("runners").doc(profile.id).set({
+        name: profile.name, city: profile.city, joinedAt: Date.now()
+      }).catch(function(){});
+    }
+    renderAll();
+  });
+
+  // ---------- log a run ----------
+  el("lf-submit").addEventListener("click", function(){
+    if(!profile){ showOnboard(); return; }
+    var distance = parseFloat(el("lf-distance").value);
+    var date = el("lf-date").value || todayISO();
+    var source = el("lf-source").value;
+    var challengeId = el("lf-challenge").value || null;
+    var note = el("lf-note").value.trim();
+    var toast = el("lf-toast");
+
+    if(!distance || distance <= 0){
+      toast.className = "toast show earned";
+      toast.textContent = "Enter a distance greater than 0 km.";
+      return;
+    }
+    if(date > todayISO()){
+      toast.className = "toast show earned";
+      toast.textContent = "Date can't be in the future.";
+      return;
+    }
+
+    var runDoc = {
+      runnerId: profile.id,
+      runnerName: profile.name,
+      distanceKm: round1(distance),
+      dateISO: date,
+      source: source,
+      challengeId: challengeId,
+      note: note,
+      createdAt: Date.now()
+    };
+
+    function afterSave(){
+      el("lf-distance").value = "";
+      el("lf-note").value = "";
+      renderAll();
+
+      if(!challengeId){
+        toast.className = "toast show ok";
+        toast.textContent = "Run logged. Great work — keep it up.";
+        return;
+      }
+      var c = CHALLENGES.find(function(x){ return x.id === challengeId; });
+      awardIfNewlyCompleted(c, profile.id, profile.name).then(function(result){
+        if(result){
+          toast.className = "toast show earned";
+          toast.textContent = result.champion
+            ? "🏆 " + c.emoji + " " + c.title + " complete — you're the FASTEST finisher! +" + result.points + " pts."
+            : c.emoji + " " + c.title + " complete! +" + result.points + " pts.";
+        } else {
+          toast.className = "toast show ok";
+          toast.textContent = "Run logged. Great work — keep it up.";
+        }
+        renderAll();
+      });
+    }
+
+    if(db){
+      db.collection("runs").add(runDoc).then(afterSave).catch(function(){
+        toast.className = "toast show earned";
+        toast.textContent = "Couldn't save — please try again.";
+      });
+    }else{
+      runDoc.id = genId();
+      runs.push(runDoc);
+      afterSave();
+    }
+  });
+
+  // ---------- seed challenges into db (idempotent, fixed ids) ----------
+  function seedChallenges(){
+    CHALLENGES.forEach(function(c){
+      db.collection("challenges").doc(c.id).set(c).catch(function(){});
+    });
+  }
+
+  // ---------- boot ----------
+  function boot(){
+    profile = loadProfile();
+    renderProfileChip();
+    renderAll();
+    if(!profile) showOnboard();
+  }
+
+  if(window.claude && typeof window.claude.use === "function"){
+    window.claude.use("db").then(function(ns){
+      db = ns;
+      if(!db){
+        el("db-banner").style.display = "block";
+        boot();
+        return;
+      }
+      seedChallenges();
+      db.collection("runs").orderBy("createdAt","desc").limit(300).onSnapshot(function(snap){
+        runs = snap.docs.map(function(d){ var data = d.data(); data.id = d.id; return data; });
+        renderAll();
+      }, function(){
+        el("db-banner").style.display = "block";
+      });
+      db.collection("completions").limit(500).onSnapshot(function(snap){
+        completions = snap.docs.map(function(d){ var data = d.data(); data.id = d.id; return data; });
+        renderAll();
+      });
+      db.collection("champions").limit(100).onSnapshot(function(snap){
+        var map = {};
+        snap.docs.forEach(function(d){ map[d.id] = d.data(); });
+        champions = map;
+        renderAll();
+      });
+      db.collection("redemptions").limit(300).onSnapshot(function(snap){
+        redemptions = snap.docs.map(function(d){ var data = d.data(); data.id = d.id; return data; });
+        renderAll();
+      });
+      boot();
+    }).catch(function(){
+      el("db-banner").style.display = "block";
+      boot();
+    });
+  }else{
+    el("db-banner").style.display = "block";
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

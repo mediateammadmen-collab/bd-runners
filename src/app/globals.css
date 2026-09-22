@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #ffffff;
+  --bg-card: #ffffff;
+  --bg-soft: #fafafa;
+  --ink: #15100f;
+  --ink-soft: #77706e;
+  --red: #ed1c24;
+  --red-deep: #b8121a;
+  --red-soft: #fdecec;
+  --line: rgba(21, 16, 15, 0.1);
+  /* Fixed "always-dark" band colors for accent sections (stats bar, rewards
+     band). These do NOT flip with the theme — unlike --ink/--bg, which are
+     meant for normal foreground/background text and invert in dark mode. */
+  --band-bg: #15100f;
+  --band-ink: #f5f0ef;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121010;
+    --bg-card: #1a1616;
+    --bg-soft: #1f1a1a;
+    --ink: #f5f0ef;
+    --ink-soft: #a99f9d;
+    --red: #ff3b42;
+    --red-deep: #ff6b70;
+    --red-soft: #2b1213;
+    --line: rgba(245, 240, 239, 0.14);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #121010;
+  --bg-card: #1a1616;
+  --bg-soft: #1f1a1a;
+  --ink: #f5f0ef;
+  --ink-soft: #a99f9d;
+  --red: #ff3b42;
+  --red-deep: #ff6b70;
+  --red-soft: #2b1213;
+  --line: rgba(245, 240, 239, 0.14);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-card: var(--bg-card);
+  --color-bg-soft: var(--bg-soft);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-red: var(--red);
+  --color-red-deep: var(--red-deep);
+  --color-red-soft: var(--red-soft);
+  --color-line: var(--line);
+  --color-band: var(--band-bg);
+  --color-band-ink: var(--band-ink);
+  --font-sans: var(--font-manrope), ui-sans-serif, sans-serif;
+  --font-bn: var(--font-noto-bengali), ui-sans-serif, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--red);
+  color: #fff;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bg-soft);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.bg-dot-grid {
+  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+}
