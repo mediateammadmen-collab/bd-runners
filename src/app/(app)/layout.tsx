@@ -35,7 +35,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             Bd Runner
           </Link>
           <nav className="flex flex-1 justify-center gap-7 overflow-x-auto">
-            {TABS.map((t) => {
+            {(profile?.is_admin ? [...TABS, { href: "/admin", label: "Admin" }] : TABS).map((t) => {
               const active = pathname === t.href;
               return (
                 <Link

@@ -11,10 +11,35 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   name text not null,
   city text,
+  is_admin boolean not null default false,
   created_at timestamptz not null default now()
 );
 
+-- safety net if profiles already existed from an earlier partial run
+alter table public.profiles add column if not exists is_admin boolean not null default false;
+
 alter table public.profiles enable row level security;
+
+-- =========================================================================
+-- admin allowlist — the single source of truth for who is an admin.
+-- To add another admin, add their email here and re-run this file.
+-- =========================================================================
+create or replace function public.is_admin_email(p_email text)
+returns boolean
+language sql
+immutable
+as $$
+  select lower(coalesce(p_email, '')) = any (array['mediateammadmen@gmail.com']);
+$$;
+
+-- checks the CURRENT authenticated request's email — use this in RLS policies.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+as $$
+  select public.is_admin_email(auth.jwt() ->> 'email');
+$$;
 
 drop policy if exists "profiles are viewable by everyone" on public.profiles;
 create policy "profiles are viewable by everyone"
@@ -33,13 +58,14 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, name, city)
+  insert into public.profiles (id, name, city, is_admin)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)),
-    nullif(new.raw_user_meta_data->>'city', '')
+    nullif(new.raw_user_meta_data->>'city', ''),
+    public.is_admin_email(new.email)
   )
-  on conflict (id) do nothing;
+  on conflict (id) do update set is_admin = excluded.is_admin;
   return new;
 end;
 $$;
@@ -49,8 +75,20 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- backfill: this trigger only fires on NEW signups, so anyone who signed up
+-- before this script ran (or before an email was added to the admin
+-- allowlist) needs their profiles row created/updated here too.
+insert into public.profiles (id, name, city, is_admin)
+select
+  u.id,
+  coalesce(u.raw_user_meta_data->>'full_name', u.raw_user_meta_data->>'name', split_part(u.email, '@', 1)),
+  nullif(u.raw_user_meta_data->>'city', ''),
+  public.is_admin_email(u.email)
+from auth.users u
+on conflict (id) do update set is_admin = excluded.is_admin;
+
 -- =========================================================================
--- challenges (read-only catalogue)
+-- challenges (admins can create/edit; everyone can read)
 -- =========================================================================
 create table if not exists public.challenges (
   id text primary key,
@@ -68,6 +106,13 @@ create table if not exists public.challenges (
 alter table public.challenges enable row level security;
 drop policy if exists "challenges are viewable by everyone" on public.challenges;
 create policy "challenges are viewable by everyone" on public.challenges for select using (true);
+
+drop policy if exists "admins can insert challenges" on public.challenges;
+create policy "admins can insert challenges" on public.challenges for insert with check (public.is_admin());
+drop policy if exists "admins can update challenges" on public.challenges;
+create policy "admins can update challenges" on public.challenges for update using (public.is_admin());
+drop policy if exists "admins can delete challenges" on public.challenges;
+create policy "admins can delete challenges" on public.challenges for delete using (public.is_admin());
 
 -- =========================================================================
 -- runs — writable ONLY via the log_run() function below, never directly.
@@ -122,7 +167,7 @@ drop policy if exists "champions are viewable by everyone" on public.champions;
 create policy "champions are viewable by everyone" on public.champions for select using (true);
 
 -- =========================================================================
--- rewards (read-only catalogue)
+-- rewards (admins can create/edit; everyone can read)
 -- =========================================================================
 create table if not exists public.rewards (
   id text primary key,
@@ -137,8 +182,17 @@ alter table public.rewards enable row level security;
 drop policy if exists "rewards are viewable by everyone" on public.rewards;
 create policy "rewards are viewable by everyone" on public.rewards for select using (true);
 
+drop policy if exists "admins can insert rewards" on public.rewards;
+create policy "admins can insert rewards" on public.rewards for insert with check (public.is_admin());
+drop policy if exists "admins can update rewards" on public.rewards;
+create policy "admins can update rewards" on public.rewards for update using (public.is_admin());
+drop policy if exists "admins can delete rewards" on public.rewards;
+create policy "admins can delete rewards" on public.rewards for delete using (public.is_admin());
+
 -- =========================================================================
--- redemptions — writable ONLY via redeem_reward(). Only visible to their owner.
+-- redemptions — writable ONLY via redeem_reward(), except status updates
+-- (e.g. marking a reward as fulfilled), which only admins may do.
+-- Runners see only their own; admins see everyone's.
 -- =========================================================================
 create table if not exists public.redemptions (
   id uuid primary key default gen_random_uuid(),
@@ -152,6 +206,10 @@ create table if not exists public.redemptions (
 alter table public.redemptions enable row level security;
 drop policy if exists "users view own redemptions" on public.redemptions;
 create policy "users view own redemptions" on public.redemptions for select using (auth.uid() = runner_id);
+drop policy if exists "admins view all redemptions" on public.redemptions;
+create policy "admins view all redemptions" on public.redemptions for select using (public.is_admin());
+drop policy if exists "admins update redemptions" on public.redemptions;
+create policy "admins update redemptions" on public.redemptions for update using (public.is_admin());
 
 -- =========================================================================
 -- log_run() — the only way runs/completions/champions get written.

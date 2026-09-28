@@ -10,9 +10,27 @@ export interface Database {
   public: {
     Tables: {
       profiles: {
-        Row: { id: string; name: string; city: string | null; created_at: string };
-        Insert: { id: string; name: string; city?: string | null; created_at?: string };
-        Update: { id?: string; name?: string; city?: string | null; created_at?: string };
+        Row: {
+          id: string;
+          name: string;
+          city: string | null;
+          is_admin: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id: string;
+          name: string;
+          city?: string | null;
+          is_admin?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          city?: string | null;
+          is_admin?: boolean;
+          created_at?: string;
+        };
         Relationships: [];
       };
       challenges: {
