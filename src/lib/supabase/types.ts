@@ -6,6 +6,8 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type CompletionStatus = "awaiting_proof" | "pending" | "approved" | "rejected";
+
 export interface Database {
   public: {
     Tables: {
@@ -45,6 +47,9 @@ export interface Database {
           points: number;
           bonus: number;
           sort_order: number;
+          starts_at: string | null;
+          ends_at: string | null;
+          archived: boolean;
         };
         Insert: {
           id: string;
@@ -57,6 +62,9 @@ export interface Database {
           points: number;
           bonus: number;
           sort_order?: number;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          archived?: boolean;
         };
         Update: {
           id?: string;
@@ -69,6 +77,9 @@ export interface Database {
           points?: number;
           bonus?: number;
           sort_order?: number;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          archived?: boolean;
         };
         Relationships: [];
       };
@@ -113,6 +124,12 @@ export interface Database {
           points: number;
           champion: boolean;
           completed_at: string;
+          status: CompletionStatus;
+          photo_path: string | null;
+          proof_path: string | null;
+          submitted_at: string | null;
+          reviewed_at: string | null;
+          review_note: string | null;
         };
         Insert: {
           id?: string;
@@ -121,6 +138,12 @@ export interface Database {
           points: number;
           champion?: boolean;
           completed_at?: string;
+          status?: CompletionStatus;
+          photo_path?: string | null;
+          proof_path?: string | null;
+          submitted_at?: string | null;
+          reviewed_at?: string | null;
+          review_note?: string | null;
         };
         Update: {
           id?: string;
@@ -129,6 +152,12 @@ export interface Database {
           points?: number;
           champion?: boolean;
           completed_at?: string;
+          status?: CompletionStatus;
+          photo_path?: string | null;
+          proof_path?: string | null;
+          submitted_at?: string | null;
+          reviewed_at?: string | null;
+          review_note?: string | null;
         };
         Relationships: [];
       };
@@ -213,7 +242,16 @@ export interface Database {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      challenge_progress: {
+        Row: { challenge_id: string; runner_id: string; runner_name: string; progress: number };
+        Relationships: [];
+      };
+      challenge_stats: {
+        Row: { challenge_id: string; participants: number; completions: number; pending_reviews: number };
+        Relationships: [];
+      };
+    };
     Functions: {
       log_run: {
         Args: {
@@ -227,6 +265,22 @@ export interface Database {
       };
       redeem_reward: {
         Args: { p_reward_id: string };
+        Returns: Json;
+      };
+      public_stats: {
+        Args: Record<string, never>;
+        Returns: Json;
+      };
+      admin_stats: {
+        Args: Record<string, never>;
+        Returns: Json;
+      };
+      submit_completion_proof: {
+        Args: { p_challenge_id: string; p_photo_path: string; p_proof_path: string | null };
+        Returns: Json;
+      };
+      review_completion: {
+        Args: { p_completion_id: string; p_approve: boolean; p_note: string | null };
         Returns: Json;
       };
     };

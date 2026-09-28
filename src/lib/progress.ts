@@ -1,7 +1,6 @@
 import type { Database } from "@/lib/supabase/types";
 
 export type Challenge = Database["public"]["Tables"]["challenges"]["Row"];
-export type Run = Database["public"]["Tables"]["runs"]["Row"];
 
 export interface Progress {
   value: number;
@@ -15,35 +14,58 @@ export function round1(n: number) {
   return Math.round(n * 10) / 10;
 }
 
-export function progressFor(challenge: Challenge, runs: Run[]): Progress {
-  if (challenge.metric === "distance_km") {
-    const total = runs.reduce((sum, r) => sum + Number(r.distance_km), 0);
-    return {
-      value: round1(total),
-      goal: Number(challenge.goal),
-      unit: "km",
-      pct: Math.min(100, (total / Number(challenge.goal)) * 100),
-      done: total >= Number(challenge.goal),
-    };
-  }
-  if (challenge.metric === "distinct_days") {
-    const days = new Set(runs.map((r) => r.date)).size;
-    return {
-      value: days,
-      goal: Number(challenge.goal),
-      unit: "days",
-      pct: Math.min(100, (days / Number(challenge.goal)) * 100),
-      done: days >= Number(challenge.goal),
-    };
-  }
-  const max = runs.reduce((m, r) => Math.max(m, Number(r.distance_km)), 0);
+// `value` comes from the challenge_progress view, which already applies the
+// metric (sum / distinct days / best single run) and the date window.
+export function toProgress(challenge: Challenge, value: number): Progress {
+  const goal = Number(challenge.goal);
+  const days = challenge.metric === "distinct_days";
+  const v = days ? Math.round(value) : round1(value);
   return {
-    value: round1(max),
-    goal: Number(challenge.goal),
-    unit: "km",
-    pct: Math.min(100, (max / Number(challenge.goal)) * 100),
-    done: max >= Number(challenge.goal),
+    value: v,
+    goal,
+    unit: days ? "days" : "km",
+    pct: goal > 0 ? Math.min(100, (v / goal) * 100) : 0,
+    done: v >= goal,
   };
+}
+
+// All calendar dates in the app are Bangladesh dates, matching log_run() in
+// the database. Using UTC here would make "today" wrong between 00:00 and
+// 06:00 Dhaka time.
+export function todayISO(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+export type ChallengeStatus = "upcoming" | "active" | "ended";
+
+export function challengeStatus(
+  c: Pick<Challenge, "starts_at" | "ends_at">,
+  today: string = todayISO(),
+): ChallengeStatus {
+  if (c.starts_at && today < c.starts_at) return "upcoming";
+  if (c.ends_at && today > c.ends_at) return "ended";
+  return "active";
+}
+
+export function formatDate(iso: string): string {
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}
+
+export function windowText(c: Pick<Challenge, "starts_at" | "ends_at">): string | null {
+  const status = challengeStatus(c);
+  if (status === "upcoming" && c.starts_at) return `Starts ${formatDate(c.starts_at)}`;
+  if (status === "ended" && c.ends_at) return `Ended ${formatDate(c.ends_at)}`;
+  if (c.ends_at) return `Ends ${formatDate(c.ends_at)}`;
+  return null;
 }
 
 export function timeAgo(iso: string): string {
@@ -55,12 +77,4 @@ export function timeAgo(iso: string): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   return `${d}d ago`;
-}
-
-export function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-export function weekAgoTimestamp(): number {
-  return Date.now() - 7 * 24 * 60 * 60 * 1000;
 }

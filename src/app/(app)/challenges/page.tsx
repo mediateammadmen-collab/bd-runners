@@ -1,15 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useSupabase } from "@/components/providers/supabase-provider";
-import { useCommunityData } from "@/lib/hooks/use-community-data";
+import { useChallenges } from "@/lib/hooks/use-challenges";
 import { ChallengeCard } from "@/components/challenge-card";
 import { PageLoading } from "@/components/page-loading";
+import { challengeStatus, toProgress } from "@/lib/progress";
+
+const STATUS_ORDER = { active: 0, upcoming: 1, ended: 2 } as const;
 
 export default function ChallengesPage() {
   const router = useRouter();
-  const { user } = useSupabase();
-  const { challenges, runs, champions, loading } = useCommunityData();
+  const { challenges, stats, champions, myProgress, myCompletions, loading } = useChallenges();
+
+  const visible = challenges
+    .filter((c) => !c.archived)
+    .sort((a, b) => STATUS_ORDER[challengeStatus(a)] - STATUS_ORDER[challengeStatus(b)]);
 
   return (
     <section>
@@ -22,25 +27,24 @@ export default function ChallengesPage() {
 
       {loading ? (
         <PageLoading />
+      ) : visible.length === 0 ? (
+        <div className="rounded-2xl border border-line bg-bg-card p-10 text-center text-[14px] text-ink-soft">
+          No challenges right now — check back soon.
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {challenges.map((c) => {
-            const myRuns = runs.filter((r) => r.challenge_id === c.id && r.runner_id === user?.id);
-            const participants = new Set(
-              runs.filter((r) => r.challenge_id === c.id).map((r) => r.runner_id),
-            ).size;
-            const champion = champions.find((ch) => ch.challenge_id === c.id);
-            return (
-              <ChallengeCard
-                key={c.id}
-                challenge={c}
-                myRuns={myRuns}
-                participants={participants}
-                championName={champion?.profiles?.name}
-                onLog={() => router.push(`/log?challenge=${c.id}`)}
-              />
-            );
-          })}
+          {visible.map((c) => (
+            <ChallengeCard
+              key={c.id}
+              challenge={c}
+              progress={toProgress(c, myProgress.get(c.id) ?? 0)}
+              completion={myCompletions.get(c.id)}
+              participants={stats.get(c.id)?.participants ?? 0}
+              championName={champions.get(c.id)}
+              onLog={() => router.push(`/log?challenge=${c.id}`)}
+              onProof={() => router.push(`/proof?challenge=${c.id}`)}
+            />
+          ))}
         </div>
       )}
     </section>

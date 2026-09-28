@@ -1,12 +1,16 @@
 "use client";
 
 import { Suspense, useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useSupabase } from "@/components/providers/supabase-provider";
-import { todayISO } from "@/lib/progress";
+import { challengeStatus, formatDate, round1, todayISO } from "@/lib/progress";
 import type { Database } from "@/lib/supabase/types";
 
 type Challenge = Database["public"]["Tables"]["challenges"]["Row"];
+
+// Mirrors c_max_run_km in log_run(); the database is the real enforcement.
+const MAX_RUN_KM = 100;
 
 const SOURCES = [
   "Strava",
@@ -30,7 +34,11 @@ function LogForm() {
   const [syncedPreselect, setSyncedPreselect] = useState(preselect);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState<{ type: "ok" | "error" | "earned"; text: string } | null>(null);
+  const [toast, setToast] = useState<{
+    type: "ok" | "error" | "earned";
+    text: string;
+    proofChallengeId?: string;
+  } | null>(null);
 
   // Reset the selected challenge when the ?challenge= query param changes
   // (e.g. navigating here from a different challenge's "Log a run" button).
@@ -43,20 +51,38 @@ function LogForm() {
     supabase
       .from("challenges")
       .select("*")
+      .eq("archived", false)
       .order("sort_order")
-      .then(({ data }) => setChallenges(data ?? []));
+      .then(({ data }) => {
+        const open = (data ?? []).filter((c) => challengeStatus(c) === "active");
+        setChallenges(open);
+        setChallengeId((id) => (open.some((c) => c.id === id) ? id : ""));
+      });
   }, [supabase]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setToast(null);
-    const distanceNum = parseFloat(distance);
+    const distanceNum = round1(parseFloat(distance));
     if (!distanceNum || distanceNum <= 0) {
       setToast({ type: "error", text: "Enter a distance greater than 0 km." });
       return;
     }
+    if (distanceNum > MAX_RUN_KM) {
+      setToast({ type: "error", text: `A single run can't be more than ${MAX_RUN_KM} km.` });
+      return;
+    }
     if (date > todayISO()) {
       setToast({ type: "error", text: "Date can't be in the future." });
+      return;
+    }
+    const selected = challenges.find((c) => c.id === challengeId);
+    if (selected?.starts_at && date < selected.starts_at) {
+      setToast({ type: "error", text: `${selected.title} starts on ${formatDate(selected.starts_at)}.` });
+      return;
+    }
+    if (selected?.ends_at && date > selected.ends_at) {
+      setToast({ type: "error", text: `${selected.title} ended on ${formatDate(selected.ends_at)}.` });
       return;
     }
 
@@ -78,14 +104,13 @@ function LogForm() {
     setDistance("");
     setNote("");
 
-    const result = data as { completed?: boolean; champion?: boolean; points?: number } | null;
-    if (result?.completed) {
-      const challenge = challenges.find((c) => c.id === challengeId);
+    const result = data as { completed?: boolean; points?: number; challenge_id?: string } | null;
+    if (result?.completed && result.challenge_id) {
+      const challenge = challenges.find((c) => c.id === result.challenge_id);
       setToast({
         type: "earned",
-        text: result.champion
-          ? `🏆 ${challenge?.emoji ?? ""} ${challenge?.title ?? "Challenge"} complete — you're the FASTEST finisher! +${result.points} pts.`
-          : `${challenge?.emoji ?? ""} ${challenge?.title ?? "Challenge"} complete! +${result.points} pts.`,
+        text: `${challenge?.emoji ?? "🎯"} Goal reached on ${challenge?.title ?? "your challenge"}! Upload your proof photo to claim ${result.points} pts.`,
+        proofChallengeId: result.challenge_id,
       });
     } else {
       setToast({ type: "ok", text: "Run logged. Great work — keep it up." });
@@ -108,6 +133,7 @@ function LogForm() {
           id="distance"
           type="number"
           min="0.1"
+          max={MAX_RUN_KM}
           step="0.1"
           value={distance}
           onChange={(e) => setDistance(e.target.value)}
@@ -192,6 +218,14 @@ function LogForm() {
             }`}
           >
             {toast.text}
+            {toast.proofChallengeId && (
+              <Link
+                href={`/proof?challenge=${toast.proofChallengeId}`}
+                className="mt-3 block w-full rounded-full bg-red py-2.5 text-center text-[13px] font-bold text-white"
+              >
+                📸 Upload proof now
+              </Link>
+            )}
           </div>
         )}
       </form>

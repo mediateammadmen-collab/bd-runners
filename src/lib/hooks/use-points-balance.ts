@@ -16,8 +16,8 @@ export function usePointsBalance() {
 
     async function load() {
       const [{ data: completions }, { data: redemptions }] = await Promise.all([
-        supabase.from("completions").select("points").eq("runner_id", userId),
-        supabase.from("redemptions").select("points_cost").eq("runner_id", userId),
+        supabase.from("completions").select("points").eq("runner_id", userId).eq("status", "approved"),
+        supabase.from("redemptions").select("points_cost").eq("runner_id", userId).neq("status", "Rejected"),
       ]);
       if (!active) return;
       const earned = (completions ?? []).reduce((s, c) => s + c.points, 0);

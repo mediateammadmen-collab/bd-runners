@@ -1,46 +1,58 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useCommunityData, type RunWithProfile } from "@/lib/hooks/use-community-data";
-import { progressFor, timeAgo } from "@/lib/progress";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSupabase } from "@/components/providers/supabase-provider";
+import { useChallenges } from "@/lib/hooks/use-challenges";
+import { timeAgo, toProgress } from "@/lib/progress";
 import { PageLoading } from "@/components/page-loading";
+import type { Database } from "@/lib/supabase/types";
+
+type ProgressRow = Database["public"]["Views"]["challenge_progress"]["Row"];
+type FeedRun = Database["public"]["Tables"]["runs"]["Row"] & { profiles: { name: string } | null };
 
 export default function LeaderboardPage() {
-  const { challenges, runs, loading } = useCommunityData();
+  const { supabase } = useSupabase();
+  const { challenges, loading: challengesLoading } = useChallenges();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [rows, setRows] = useState<ProgressRow[]>([]);
+  const [feed, setFeed] = useState<FeedRun[]>([]);
 
-  const activeChallenge = challenges.find((c) => c.id === activeId) ?? challenges[0];
-
-  const rows = useMemo(() => {
-    if (!activeChallenge) return [];
-    const byRunner = new Map<string, { name: string; runs: RunWithProfile[] }>();
-    runs
-      .filter((r) => r.challenge_id === activeChallenge.id)
-      .forEach((r) => {
-        const key = r.runner_id;
-        const name = r.profiles?.name ?? "Runner";
-        if (!byRunner.has(key)) byRunner.set(key, { name, runs: [] });
-        byRunner.get(key)!.runs.push(r);
-      });
-    return Array.from(byRunner.entries())
-      .map(([id, v]) => {
-        const p = progressFor(activeChallenge, v.runs);
-        return { id, name: v.name, value: p.value, unit: p.unit, done: p.done };
-      })
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 15);
-  }, [activeChallenge, runs]);
-
-  const feed = useMemo(
-    () =>
-      runs
-        .slice()
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-        .slice(0, 20),
-    [runs],
+  const visible = useMemo(() => challenges.filter((c) => !c.archived), [challenges]);
+  const activeChallenge = useMemo(
+    () => visible.find((c) => c.id === activeId) ?? visible[0],
+    [visible, activeId],
   );
+  const activeChallengeId = activeChallenge?.id ?? null;
 
-  if (loading) return <PageLoading />;
+  const load = useCallback(async () => {
+    const [board, recent] = await Promise.all([
+      activeChallengeId
+        ? supabase
+            .from("challenge_progress")
+            .select("*")
+            .eq("challenge_id", activeChallengeId)
+            .order("progress", { ascending: false })
+            .limit(15)
+        : Promise.resolve({ data: [] as ProgressRow[] }),
+      supabase.from("runs").select("*, profiles(name)").order("created_at", { ascending: false }).limit(20),
+    ]);
+    setRows(board.data ?? []);
+    setFeed((recent.data as unknown as FeedRun[]) ?? []);
+  }, [supabase, activeChallengeId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial fetch + realtime subscription on mount
+    load();
+    const channel = supabase
+      .channel(`leaderboard-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "runs" }, load)
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, load]);
+
+  if (challengesLoading) return <PageLoading />;
 
   return (
     <section>
@@ -50,7 +62,7 @@ export default function LeaderboardPage() {
       </div>
 
       <div className="mb-4 flex gap-2 overflow-x-auto">
-        {challenges.map((c) => (
+        {visible.map((c) => (
           <button
             key={c.id}
             onClick={() => setActiveId(c.id)}
@@ -66,23 +78,26 @@ export default function LeaderboardPage() {
       </div>
 
       <div className="mb-9 rounded-2xl border border-line bg-bg-card p-2">
-        {rows.length === 0 ? (
+        {rows.length === 0 || !activeChallenge ? (
           <div className="p-10 text-center text-[14px] text-ink-soft">
             No runs logged for this challenge yet — be the first.
           </div>
         ) : (
-          rows.map((r, i) => (
-            <div key={r.id} className="flex items-center gap-3.5 border-b border-line px-3 py-3 last:border-0">
-              <div className="w-6 text-center text-[12.5px] font-extrabold text-ink-soft">{i + 1}</div>
-              <div className="flex-1 font-bold">
-                {r.name}
-                {r.done ? " 🏅" : ""}
+          rows.map((r, i) => {
+            const p = toProgress(activeChallenge, Number(r.progress));
+            return (
+              <div key={r.runner_id} className="flex items-center gap-3.5 border-b border-line px-3 py-3 last:border-0">
+                <div className="w-6 text-center text-[12.5px] font-extrabold text-ink-soft">{i + 1}</div>
+                <div className="flex-1 font-bold">
+                  {r.runner_name}
+                  {p.done ? " 🏅" : ""}
+                </div>
+                <div className="font-extrabold text-red">
+                  {p.value} <span className="text-[12px] font-medium text-ink-soft">{p.unit}</span>
+                </div>
               </div>
-              <div className="font-extrabold text-red">
-                {r.value} <span className="text-[12px] font-medium text-ink-soft">{r.unit}</span>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

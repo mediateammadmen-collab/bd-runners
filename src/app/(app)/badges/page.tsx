@@ -1,13 +1,14 @@
 "use client";
 
-import { useSupabase } from "@/components/providers/supabase-provider";
-import { useCommunityData } from "@/lib/hooks/use-community-data";
-import { progressFor } from "@/lib/progress";
+import { useChallenges } from "@/lib/hooks/use-challenges";
+import { toProgress } from "@/lib/progress";
 import { PageLoading } from "@/components/page-loading";
 
 export default function BadgesPage() {
-  const { user } = useSupabase();
-  const { challenges, runs, completions, loading } = useCommunityData();
+  const { challenges, myProgress, myCompletions, loading } = useChallenges();
+
+  // Keep a badge you earned even after the challenge is archived.
+  const shown = challenges.filter((c) => !c.archived || myCompletions.get(c.id)?.status === "approved");
 
   return (
     <section>
@@ -20,24 +21,32 @@ export default function BadgesPage() {
         <PageLoading count={4} />
       ) : (
         <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 md:grid-cols-4">
-          {challenges.map((c) => {
-            const myRuns = runs.filter((r) => r.challenge_id === c.id && r.runner_id === user?.id);
-            const p = progressFor(c, myRuns);
-            const mine = completions.find((x) => x.challenge_id === c.id && x.runner_id === user?.id);
+          {shown.map((c) => {
+            const completion = myCompletions.get(c.id);
+            const earned = completion?.status === "approved" ? completion : undefined;
+            const p = toProgress(c, myProgress.get(c.id) ?? 0);
+            const pendingLabel =
+              completion?.status === "pending"
+                ? "Under review"
+                : completion?.status === "awaiting_proof"
+                  ? "Upload proof to claim"
+                  : completion?.status === "rejected"
+                    ? "Proof rejected — resubmit"
+                    : null;
             return (
-              <div key={c.id} className={`rounded-2xl border border-line p-5 text-center ${p.done ? "" : "opacity-40"}`}>
+              <div key={c.id} className={`rounded-2xl border border-line p-5 text-center ${earned ? "" : "opacity-40"}`}>
                 <div
                   className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full text-2xl ${
-                    p.done ? "bg-red-soft" : "bg-bg-soft"
+                    earned ? "bg-red-soft" : "bg-bg-soft"
                   }`}
                 >
                   {c.emoji}
                 </div>
                 <div className="mt-2.5 text-[13px] font-bold">{c.title}</div>
                 <div className="mt-0.5 text-[11.5px] font-semibold text-ink-soft">
-                  {p.done
-                    ? `Earned · ${mine?.points ?? c.points} pts${mine?.champion ? " 🏆" : ""}`
-                    : `${p.value} / ${p.goal} ${p.unit}`}
+                  {earned
+                    ? `Earned · ${earned.points} pts${earned.champion ? " 🏆" : ""}`
+                    : (pendingLabel ?? `${p.value} / ${p.goal} ${p.unit}`)}
                 </div>
               </div>
             );
